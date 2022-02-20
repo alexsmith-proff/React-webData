@@ -42,6 +42,14 @@
     &__btnWrap{
         // background-color: green;
     }
+    &__authNameWrap{
+        display: flex;
+        align-items: center;
+    }
+    &__authName{
+        font-size: 14px;
+        margin-right: 20px;
+    }
 
 }
 .authbtn{

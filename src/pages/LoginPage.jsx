@@ -1,10 +1,12 @@
 import Cookies from 'js-cookie';
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router';
+import { useDispatch } from 'react-redux'
 import validator from 'validator';
 import allEndpoints from '../services/api';
 
 import st from './loginpage.module.scss';
+import { setFirstName_, setId_, setIsAuth_, setLastName_, setEmail_ } from '../feature/user/userSlice';
 
 
 function LoginPage() {
@@ -18,6 +20,7 @@ function LoginPage() {
   const [isMessage, setIsMessage] = useState(false);
 
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
 
   const handleChangeEmail = (e) => {
@@ -47,7 +50,16 @@ function LoginPage() {
             "email": email,
             "password": password                              
           })
-          Cookies.set('auth-token', response.data.token)
+          console.log(response)
+          localStorage.setItem('accessToken', response.data.token)
+          dispatch(setFirstName_(response.data.user.firstName))
+          dispatch(setLastName_(response.data.user.lastName))
+          // console.log(response.data.user.email)
+          dispatch(setEmail_(response.data.user.email))
+          dispatch(setId_(response.data.user.id))
+          dispatch(setIsAuth_(true))
+
+          // Cookies.set('auth-token', response.data.token)
           navigate('/')          
         } catch (e) {
           if(e.response.status === 422){
