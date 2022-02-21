@@ -4,15 +4,16 @@ import { useNavigate } from 'react-router';
 
 import st from './registrationpage.module.scss';
 import { Link } from 'react-router-dom';
+import allEndpoints from '../services/api';
 
 function RegistrationPage() {
-  const [mail, setMail] = useState('');
+  const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const [isMailAlert, setIsMailAlert] = useState(false);
+    const [isEmailAlert, setIsEmailAlert] = useState(false);
     const [isPasswordAlert, setIsPasswordAlert] = useState(false);
     const [isConfirmPasswordAlert, setIsConfirmPasswordAlert] = useState(false);
     const [isFirstNameAlert, setIsFirstNameAlert] = useState(false);
@@ -22,8 +23,8 @@ function RegistrationPage() {
     let navigate = useNavigate();
 
 
-    const handleChangeMail = (e) => {
-        setMail(e.target.value);
+    const handleChangeEmail = (e) => {
+        setEmail(e.target.value);
     }
     const handleChangePassword = (e) => {
         setPassword(e.target.value);
@@ -40,14 +41,14 @@ function RegistrationPage() {
         setConfirmPassword(e.target.value);
     }
 
-    const handleRegisterClick = () => {
-        setIsMailAlert(false)
+    const handleRegisterClick = async() => {
+        setIsEmailAlert(false)
         setIsPasswordAlert(false)
         setIsFirstNameAlert(false)
         setIsLastNameAlert(false)
         setIsConfirmPasswordAlert(false)
-        if(!validator.isEmail(mail)){
-            setIsMailAlert(true)
+        if(!validator.isEmail(email)){
+            setIsEmailAlert(true)
         }else if(password.length < 5){
             setIsPasswordAlert(true)
         }else if(password != confirmPassword) {
@@ -60,7 +61,22 @@ function RegistrationPage() {
             console.log('lastname')
             setIsLastNameAlert(true)
         }else{
-           
+          try {
+            // console.log(email, password)
+            const response = await allEndpoints.auth.registration({
+              "email": email,
+              "password": password,
+              "firstName": firstName,
+              "lastName": lastName
+            })
+            console.log(response)
+            navigate('/login')          
+          } catch (e) {
+            if(e.response.status === 422){
+              console.log('status 422')
+            }
+            setIsMessage(true)
+          }           
 
         } 
     }
@@ -77,7 +93,7 @@ function RegistrationPage() {
             Войти
           </button>
         </div>
-        <input className={st.input} type="text" value={mail} onChange={handleChangeMail} placeholder='E-mail' />
+        <input className={st.input} type="text" value={email} onChange={handleChangeEmail} placeholder='E-mail' />
         <input className={st.input} type="password" value={password} onChange={handleChangePassword} placeholder='Пароль' />
         <input className={st.input} type="password" value={confirmPassword} onChange={handleChangeConfirmPassword} placeholder='Повторите пароль' />
         <input className={st.input} type="text" value={firstName} onChange={handleChangeFirstName} placeholder='Введите имя' />
@@ -96,8 +112,8 @@ function RegistrationPage() {
           </div>
         </div>
 
-        {isMailAlert && <div className={st.alert + ' ' + st.mailalert}>Вы ввели некорректный email</div>}
-        {isPasswordAlert && <div className={st.alert + ' ' + st.passwordalert}>Пароль должен содержать более 7 символов </div>}
+        {isEmailAlert && <div className={st.alert + ' ' + st.mailalert}>Вы ввели некорректный email</div>}
+        {isPasswordAlert && <div className={st.alert + ' ' + st.passwordalert}>Пароль должен содержать более 5 символов </div>}
         {isConfirmPasswordAlert && <div className={st.alert + ' ' + st.confirmpasswordalert}>Пароль не совпадает</div>}
         {isFirstNameAlert && <div className={st.alert + ' ' + st.firstnamealert}>Введите имя</div>}
         {isLastNameAlert && <div className={st.alert + ' ' + st.lastnamealert}>Введите фамилию</div>}

@@ -1,34 +1,31 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import allEndpoints from '../../services/api'
 
 const initialState = {
-    firstName: '',
-    lastName: '',
-    email: '',
-    id: null,
-    isAuth: false,
+    user : {}    
 }
+
+export const getUserData = createAsyncThunk('user/getUserData', async(_, { rejectWithValue, dispatch }) => {
+    //Запрос
+    const response = await allEndpoints.auth.getProfile({})
+    // console.log(response.data)
+    dispatch(setUserData(response.data))
+})
 
 export const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        setFirstName_: (state, action) => {
-            state.firstName = action.payload
-        },
-        setLastName_: (state, action) => {
-            state.lastName = action.payload
-        },
-        setEmail_: (state, action) => {
-            state.email = action.payload
-        },
-        setId_: (state, action) => {
-            state.id = action.payload
-        },
-        setIsAuth_: (state, action) => {
-            state.isAuth = action.payload
-        },      
+        setUserData: (state, action) => {
+            state.user = action.payload
+        }
+    },
+    extraReducers: {
+        [getUserData.pending]: () => {}, // pending вызывается тогда, когда вызывается getPosts
+        [getUserData.fulfilled]: () => {}, // fulfilled вызывается тогда, когда запрос прошел успешно
+        [getUserData.rejected]: () => {}, // rejected вызывается тогда, когда есть ошибка        
     }
 })
 
-export const { setFirstName_, setLastName_, setEmail_, setId_, setIsAuth_} = userSlice.actions
+export const { setUserData} = userSlice.actions
 export default userSlice.reducer

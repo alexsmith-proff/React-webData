@@ -1,25 +1,27 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux'
 import st from './header.module.scss'
-import { setEmail_, setFirstName_, setId_, setIsAuth_, setLastName_ } from '../feature/user/userSlice';
+import { setUserData } from '../feature/user/userSlice';
 
 function Header() {
+
+    const[isLoading, setIsLoading] = useState(false)
+
     const navigate = useNavigate()
-    const dispath = useDispatch()
-    const isAuth = useSelector(state => state.user.isAuth)
-    const firstName = useSelector(state => state.user.firstName)
-    const lastName = useSelector(state => state.user.lastName)
+    const dispatch = useDispatch()
+    const firstName = useSelector(state => state.user.user.firstName)
+    const lastName = useSelector(state => state.user.user.lastName)
 
     const handlerLogOut = () => {
         localStorage.removeItem('accessToken')
-        dispath(setFirstName_(''))
-        dispath(setLastName_(''))
-        dispath(setEmail_(''))
-        dispath(setId_(''))
-        dispath(setIsAuth_(false))
+        dispatch(setUserData({}))
+        setIsLoading(false)
     }
+    useEffect(() => {
+        if(localStorage.getItem('accessToken')) setIsLoading(true)
+    })
   return (
     <div>
         <header>
@@ -37,7 +39,7 @@ function Header() {
                         </nav>
 
                         {
-                            isAuth ? 
+                            isLoading ? 
                                 (
                                     <div className={st.header__authNameWrap}>
                                         <div className={st.header__authName}> Привет, {firstName} {lastName}</div>      
@@ -55,7 +57,11 @@ function Header() {
                                         onClick={() => navigate('/login')}
                                     >
                                         Войти</button>
-                                    <button className={st.authbtn}>Регистрация</button>
+                                    <button
+                                        className={st.authbtn}
+                                        onClick={() => navigate('/register')}
+                                    >
+                                        Регистрация</button>
                                 </div>
                         }
 
